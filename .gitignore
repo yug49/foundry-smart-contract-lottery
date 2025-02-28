@@ -13,4 +13,17 @@ docs/
 # Dotenv file
 .env
 
-lib/
+lib/chainlink-brownie-contracts/
+
+lib/forge-std/
+
+lib/foundry-devops/
+
+lib/solmate/
+
+
+
+broadcast/
+
+coverage.txt
+
