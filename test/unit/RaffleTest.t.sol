@@ -91,7 +91,7 @@ contract RaffleTest is CodeConstants, Test {
         raffle.enterRaffle{value: entranceFee}();
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1); //good practice to roll the block number to ensure the timestamp is updated
-        raffle.performUpKeep("");
+        raffle.performUpkeep("");
 
         //Act
         vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
@@ -119,7 +119,7 @@ contract RaffleTest is CodeConstants, Test {
         raffle.enterRaffle{value: entranceFee}();
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1); //good practice to roll the block number to ensure the timestamp is updated
-        raffle.performUpKeep("");
+        raffle.performUpkeep("");
 
         //Act
         (bool upkeepNeeded, ) = raffle.checkUpkeep("");
@@ -166,7 +166,7 @@ contract RaffleTest is CodeConstants, Test {
         vm.roll(block.number + 1);
 
         // Act / assert
-        raffle.performUpKeep("");
+        raffle.performUpkeep("");
     }
 
     function testPerformUpkeepRevertsIfCheckUpKeepIsFalse() public {
@@ -189,7 +189,7 @@ contract RaffleTest is CodeConstants, Test {
                 rState
             )
         );
-        raffle.performUpKeep("");
+        raffle.performUpkeep("");
     }
 
     function testPerformUpkeepUpdatesRaffleStateEmitsRequestId()
@@ -198,7 +198,7 @@ contract RaffleTest is CodeConstants, Test {
     {
         //Act
         vm.recordLogs();
-        raffle.performUpKeep("");
+        raffle.performUpkeep("");
         Vm.Log[] memory entries = vm.getRecordedLogs();
         bytes32 requestId = entries[1].topics[1]; //entries[0] -> vrf coordinator logs    topics[0] -> reserved
 
@@ -250,7 +250,7 @@ contract RaffleTest is CodeConstants, Test {
 
         //Act
         vm.recordLogs();
-        raffle.performUpKeep("");
+        raffle.performUpkeep("");
         Vm.Log[] memory entries = vm.getRecordedLogs();
         bytes32 requestId = entries[1].topics[1];
         VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(

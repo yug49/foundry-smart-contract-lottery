@@ -3,6 +3,7 @@ pragma solidity 0.8.19;
 
 import {VRFConsumerBaseV2Plus} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
+import {AutomationCompatibleInterface} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/interfaces/AutomationCompatibleInterface.sol";
 
 /**
  * @title A sample Raffle Contract
@@ -11,7 +12,7 @@ import {VRFV2PlusClient} from "../lib/chainlink-brownie-contracts/contracts/src/
  * @dev  Implements Chainlink VRFv2.5
  */
 
-contract Raffle is VRFConsumerBaseV2Plus {
+contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface{
     /* Errors */
     error Raffle__SendMoreToEnterRaffle();
     error Raffle__TransferFailed();
@@ -104,7 +105,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         return (upKeepNeeded, "");
     }
 
-    function performUpKeep(bytes calldata /* performData */) external {
+    function performUpkeep(bytes calldata /* performData */) external override{
         // 1. Get a random number
         // 2. Use Random number to pick a player
         // 3. Be automatically called
