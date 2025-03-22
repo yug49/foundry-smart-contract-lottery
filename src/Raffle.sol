@@ -1,29 +1,57 @@
 //SPDX-License-Identifier: MIT
+
+/**
+ * @title A sample Raffle Contract
+ * @author Yug Agarwal
+ * @notice This contract is for creating a sample Raffle Contract
+ * @dev  Implements Chainlink VRFv2.5 and Chainlink Automation
+  */
+
+// Layout of the contract file:
+// version
+// imports
+// errors
+// interfaces, libraries, contract
+
+// Inside Contract:
+// Type declarations
+// State variables
+// Events
+// Modifiers
+// Functions
+
+// Layout of Functions:
+// constructor
+// receive function (if exists)
+// fallback function (if exists)
+// external
+// public
+// internal
+// private
+
+// view & pure functions
+
 pragma solidity 0.8.19;
 
 import {VRFConsumerBaseV2Plus} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 import {AutomationCompatibleInterface} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/interfaces/AutomationCompatibleInterface.sol";
 
-/**
- * @title A sample Raffle Contract
- * @author Yug Agarwal
- * @notice This contract is for creating a sample Raffle Contract
- * @dev  Implements Chainlink VRFv2.5
- */
+/** Errors */
+error Raffle__SendMoreToEnterRaffle();
+error Raffle__TransferFailed();
+error Raffle__RaffleNotOpen();
+error Raffle__UpKeepNotNeeded(
+    uint256 balance,
+    uint256 playersLength,
+    uint256 raffleState
+);
 
 contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface{
-    /* Errors */
-    error Raffle__SendMoreToEnterRaffle();
-    error Raffle__TransferFailed();
-    error Raffle__RaffleNotOpen();
-    error Raffle__UpKeepNotNeeded(
-        uint256 balance,
-        uint256 playersLength,
-        uint256 raffleState
-    );
+    
+    
 
-    /* Type Declarations */
+    /** Type Declarations */
     enum RaffleState {
         OPEN, // index 0
         CALCULATING //index 1
@@ -31,7 +59,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface{
 
     /* State Variables */
     uint256 private immutable i_enteranceFee;
-    uint256 private immutable i_interval; // duration of a lottery in seconds
+    uint256 private immutable i_interval; /** @dev duration of a lottery in seconds */
     bytes32 private immutable i_keyHash; //gas willing to pay
     uint256 private immutable i_subscriptionId;
     uint256 private s_lastTimeStamp;
@@ -42,7 +70,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface{
     address private s_recentWinner;
     RaffleState private s_raffleState;
 
-    /* Evrents */
+    /** Events */
     event RaffleEntered(address indexed player);
     event WinnerPicked(address indexed winner);
     event RequestedRaffleWinner(uint256 indexed requestId);
@@ -81,6 +109,11 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface{
         emit RaffleEntered(msg.sender); //every time you update storage, you will want to emit an eventw
     }
 
+    function pickWinner() external {
+        // check to see if enough time has passed
+        if(block.timestamp - s_lastTimeStamp < i_interval) revert();
+    }
+
     /**
      * @dev This is the function that the Chainlink nodes will call to see if the lottery is ready to have a winner picked.
      * The following should be true in order for upKeepNeed to be true:
@@ -95,7 +128,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface{
 
     function checkUpkeep(
         bytes memory /* checkData */
-    ) public view returns (bool upKeepNeeded, bytes memory /*performData*/) {
+    ) public view override returns (bool upKeepNeeded, bytes memory /*performData*/) {
         bool timeHasPassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
         bool isOpen = s_raffleState == RaffleState.OPEN;
         bool hasBalance = address(this).balance > 0;
